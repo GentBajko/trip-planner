@@ -1,2 +1,2 @@
-export * from './trip.interface';
+export * from './trip.dto';
 export * from './trip.entity';

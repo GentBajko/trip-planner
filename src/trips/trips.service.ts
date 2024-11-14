@@ -3,30 +3,30 @@ import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import axios from 'axios';
 import { Repository } from 'typeorm';
-import { Trip, TripEntity } from './types';
+import { TripDto, TripEntity } from './types';
 
 @Injectable()
 export class TripsService {
   private readonly logger = new Logger(TripsService.name);
   private readonly TRIPS_API_URL =
     'https://z0qw1e7jpd.execute-api.eu-west-1.amazonaws.com/default/trips';
-  private savedTrips: Trip[] = [];
+  private savedTrips: TripDto[] = [];
 
   constructor(
     private readonly configService: ConfigService,
     @InjectRepository(TripEntity)
-    private tripRepository: Repository<Trip>,
+    private tripRepository: Repository<TripDto>,
   ) {}
 
   async getTrips(
     origin: string,
     destination: string,
     sortBy: string,
-  ): Promise<Trip[]> {
+  ): Promise<TripDto[]> {
     try {
       const apiKey = this.configService.get<string>('API_KEY');
 
-      const response = await axios.get<Trip[]>(this.TRIPS_API_URL, {
+      const response = await axios.get<TripDto[]>(this.TRIPS_API_URL, {
         headers: { 'x-api-key': apiKey },
         params: {
           origin,
@@ -51,11 +51,11 @@ export class TripsService {
     }
   }
 
-  async saveTrip(trip: Trip): Promise<Trip> {
+  async saveTrip(trip: TripDto): Promise<TripDto> {
     return await this.tripRepository.save(trip);
   }
 
-  async listTrips(): Promise<Trip[]> {
+  async listTrips(): Promise<TripDto[]> {
     return await this.tripRepository.find();
   }
 
