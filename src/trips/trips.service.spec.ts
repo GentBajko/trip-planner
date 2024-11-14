@@ -3,6 +3,9 @@ import axios from 'axios';
 import { Repository } from 'typeorm';
 import { TripsService } from './trips.service';
 import { Trip } from './types';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { ConfigService } from '@nestjs/config';
+import { TripEntity } from './types';
 
 jest.mock('axios');
 
@@ -12,10 +15,27 @@ describe('TripsService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [TripsService],
+      providers: [
+        TripsService,
+        {
+          provide: ConfigService,
+          useValue: {
+            get: jest.fn().mockReturnValue('mock-api-key'),
+          },
+        },
+        {
+          provide: getRepositoryToken(TripEntity),
+          useValue: {
+            save: jest.fn(),
+            find: jest.fn(),
+            delete: jest.fn(),
+          },
+        },
+      ],
     }).compile();
 
     service = module.get<TripsService>(TripsService);
+    repository = module.get<Repository<Trip>>(getRepositoryToken(TripEntity));
   });
 
   it('should be defined', () => {
